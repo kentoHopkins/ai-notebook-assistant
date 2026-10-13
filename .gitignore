@@ -1,0 +1,26 @@
+# Environment variables and secrets
+.env
+.env.*
+!.env.example
+!.env_example
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/
+
+# Local databases and application data
+data/
+*.db
+*.sqlite
+*.sqlite3
+chroma_db/
+
+# Frontend dependencies and build output
+node_modules/
+dist/
+
+# OS and editor files
+.DS_Store

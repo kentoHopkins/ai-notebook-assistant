@@ -1,0 +1,11 @@
+Machine Learning and Artificial Intelligence
+
+Machine learning is a branch of artificial intelligence that allows computers
+to learn patterns from data.
+
+Retrieval-Augmented Generation (RAG) combines document retrieval with large
+language models. A RAG system retrieves relevant information from a knowledge
+base and provides that information to a language model to generate an answer.
+
+Vector databases store numerical representations called embeddings. These
+embeddings allow a system to retrieve documents based on semantic similarity.

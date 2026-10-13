@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from backend.app.api.notebooks import router as notebooks_router
+from backend.app.api.documents import router as documents_router
 
 app = FastAPI(
     title="AI Notebook Assistant API",
@@ -9,6 +10,7 @@ app = FastAPI(
 
 # Register the notebook API routes.
 app.include_router(notebooks_router)
+app.include_router(documents_router)
 
 @app.get("/")
 def root():

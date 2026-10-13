@@ -7,14 +7,15 @@ from sqlalchemy.orm import Session
 from backend.app.database import get_db
 from backend.app.models.document import Document
 from backend.app.models.notebook import Notebook
-from backend.app.schemas.document import DocumentResponse
-from backend.app.schemas.document import DocumentURLCreate
+from backend.app.schemas.document import DocumentResponse, DocumentURLCreate
 from backend.app.services.document_loader import (
     extract_pdf,
     extract_pptx,
     extract_txt,
     extract_webpage,
 )
+from backend.app.services.rag.chunker import chunk_text
+from backend.app.services.rag.vector_store import add_document_chunks, delete_document_chunks
 
 router = APIRouter(
     prefix="/notebooks/{notebook_id}/documents",
@@ -102,9 +103,32 @@ async def upload_document(
         source_url=None,
         content=content,
     )
-    db.add(document)
-    db.commit()
-    db.refresh(document)
+    try:
+        db.add(document)
+        db.flush()
+        chunks = chunk_text(content)
+        add_document_chunks(
+            notebook_id=notebook_id,
+            document_id=document.id,
+            filename=filename,
+            chunks=chunks,
+        )
+        db.commit()
+        db.refresh(document)
+    except Exception as exc:
+        db.rollback()
+        if document.id is not None:
+            try:
+                delete_document_chunks(
+                    notebook_id=notebook_id,
+                    document_id=document.id,
+                )
+            except Exception:
+                pass
+        raise HTTPException(
+            status_code=500,
+            detail="Failed to process and store the document.",
+        ) from exc
     return document
 
 @router.post("/url", response_model=DocumentResponse, status_code=201)
@@ -152,13 +176,29 @@ def add_document_from_url(
     )
     try:
         db.add(document)
+        db.flush()
+        chunks = chunk_text(content)
+        add_document_chunks(
+            notebook_id=notebook_id,
+            document_id=document.id,
+            filename=filename,
+            chunks=chunks,
+        )
         db.commit()
         db.refresh(document)
     except Exception as exc:
         db.rollback()
+        if document.id is not None:
+            try:
+                delete_document_chunks(
+                    notebook_id=notebook_id,
+                    document_id=document.id,
+                )
+            except Exception:
+                pass
         raise HTTPException(
             status_code=500,
-            detail="Failed to save the document.",
+            detail="Failed to process and store the document.",
         ) from exc
     return document
 
@@ -213,6 +253,10 @@ def delete_document(
             detail="Document not found in this notebook.",
         )
     try:
+        delete_document_chunks(
+            notebook_id=notebook_id,
+            document_id=document_id,
+        )
         db.delete(document)
         db.commit()
     except Exception as exc:

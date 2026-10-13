@@ -1,5 +1,7 @@
 from backend.app.database import Base, engine
 from backend.app.models.notebook import Notebook
+from backend.app.models.document import Document
+from backend.app.models.chat_message import ChatMessage
 
 def init_db():
     """Create database tables for all registered models."""

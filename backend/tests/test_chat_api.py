@@ -92,12 +92,35 @@ def test_ask_question_rejects_empty_question():
     assert response.status_code == 422
 
 def test_ask_question_notebook_not_found():
-    response = client.post(
-        "/notebooks/999999/ask",
-        json={"question": "What is marine biology?"},
+    test_engine = create_engine(
+        "sqlite://",
+        connect_args={"check_same_thread": False},
+        poolclass=StaticPool,
     )
-    assert response.status_code == 404
-    assert response.json()["detail"] == "Notebook not found."
+    TestingSessionLocal = sessionmaker(
+        bind=test_engine,
+        autoflush=False,
+        autocommit=False,
+    )
+    Base.metadata.create_all(bind=test_engine)
+    def override_get_db():
+        db = TestingSessionLocal()
+        try:
+            yield db
+        finally:
+            db.close()
+    app.dependency_overrides[get_db] = override_get_db
+    try:
+        response = client.post(
+            "/notebooks/999999/ask",
+            json={"question": "What is marine biology?"},
+        )
+        assert response.status_code == 404
+        assert response.json()["detail"] == "Notebook not found."
+    finally:
+        app.dependency_overrides.pop(get_db, None)
+        Base.metadata.drop_all(bind=test_engine)
+        test_engine.dispose()
 
 def test_ask_question_groq_failure(monkeypatch):
     test_engine = create_engine(

@@ -4,6 +4,7 @@ from backend.app.api.notebooks import router as notebooks_router
 from backend.app.api.documents import router as documents_router
 from backend.app.api.chat import router as chat_router
 from backend.app.api.study_materials import router as study_materials_router
+import os
 
 app = FastAPI(
     title="AI Notebook Assistant API",
@@ -11,9 +12,12 @@ app = FastAPI(
     version="0.1.0",
 )
 
+frontend_url = os.getenv("FRONTEND_URL", "http://localhost:5173")
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
+        frontend_url,
         "http://localhost:5173",
         "http://127.0.0.1:5173",
     ],
@@ -22,7 +26,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Register the notebook API routes.
 app.include_router(notebooks_router)
 app.include_router(documents_router)
 app.include_router(chat_router)

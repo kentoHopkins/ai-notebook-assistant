@@ -53,3 +53,7 @@ def get_db():
         yield db
     finally:
         db.close()
+
+def init_db():
+    from backend.app import models
+    Base.metadata.create_all(bind=engine)

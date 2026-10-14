@@ -48,24 +48,27 @@ def add_document_chunks(
     if not chunks:
         return 0
     collection = get_collection(notebook_id)
-    ids = [
-        f"doc_{document_id}_chunk_{index}"
-        for index in range(len(chunks))
-    ]
-    metadatas = [
-        {
-            "notebook_id": notebook_id,
-            "document_id": document_id,
-            "filename": filename,
-            "chunk_index": index,
-        }
-        for index in range(len(chunks))
-    ]
-    collection.upsert(
-        ids=ids,
-        documents=chunks,
-        metadatas=metadatas,
-    )
+    batch_size = 16
+    for start in range(0, len(chunks), batch_size):
+        batch = chunks[start:start + batch_size]
+        ids = [
+            f"doc_{document_id}_chunk_{index}"
+            for index in range(start, start + len(batch))
+        ]
+        metadatas = [
+            {
+                "notebook_id": notebook_id,
+                "document_id": document_id,
+                "filename": filename,
+                "chunk_index": index,
+            }
+            for index in range(start, start + len(batch))
+        ]
+        collection.upsert(
+            ids=ids,
+            documents=batch,
+            metadatas=metadatas,
+        )
     return len(chunks)
 
 def search_chunks(

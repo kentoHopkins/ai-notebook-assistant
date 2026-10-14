@@ -4,6 +4,7 @@ from backend.app.api.notebooks import router as notebooks_router
 from backend.app.api.documents import router as documents_router
 from backend.app.api.chat import router as chat_router
 from backend.app.api.study_materials import router as study_materials_router
+from backend.app.database import init_db
 import os
 
 app = FastAPI(
@@ -11,6 +12,10 @@ app = FastAPI(
     description="An AI-powered notebook application for document analysis and question answering.",
     version="0.1.0",
 )
+
+@app.on_event("startup")
+def startup_event():
+    init_db()
 
 frontend_url = os.getenv(
     "FRONTEND_URL",

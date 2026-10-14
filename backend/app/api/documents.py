@@ -107,12 +107,15 @@ async def upload_document(
         db.add(document)
         db.flush()
         chunks = chunk_text(content)
+        print(f"[URL DEBUG] Chunking succeeded: {len(chunks)} chunks", flush=True)
+        print("[URL DEBUG] Starting ChromaDB storage and embedding", flush=True)
         add_document_chunks(
             notebook_id=notebook_id,
             document_id=document.id,
             filename=filename,
             chunks=chunks,
         )
+        print("[URL DEBUG] ChromaDB storage completed", flush=True)
         db.commit()
         db.refresh(document)
     except Exception as exc:
@@ -152,6 +155,7 @@ def add_document_from_url(
     url = str(request.url)
     try:
         content = extract_webpage(url)
+        print(f"[URL DEBUG] Extraction succeeded: {len(content)} characters", flush=True)
     except ValueError as exc:
         raise HTTPException(
             status_code=400,
@@ -178,12 +182,15 @@ def add_document_from_url(
         db.add(document)
         db.flush()
         chunks = chunk_text(content)
+        print(f"[URL DEBUG] Chunking succeeded: {len(chunks)} chunks", flush=True)
+        print("[URL DEBUG] Starting ChromaDB storage and embedding", flush=True)
         add_document_chunks(
             notebook_id=notebook_id,
             document_id=document.id,
             filename=filename,
             chunks=chunks,
         )
+        print("[URL DEBUG] ChromaDB storage completed", flush=True)
         db.commit()
         db.refresh(document)
     except Exception as exc:

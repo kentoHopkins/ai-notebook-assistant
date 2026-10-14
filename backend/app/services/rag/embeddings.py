@@ -1,8 +1,7 @@
-from chromadb.utils import embedding_functions
+from chromadb.utils.embedding_functions import ONNXMiniLM_L6_V2
 
 EMBEDDING_MODEL = "all-MiniLM-L6-v2"
 
+
 def get_embedding_function():
-    return embedding_functions.SentenceTransformerEmbeddingFunction(
-        model_name=EMBEDDING_MODEL
-    )
+    return ONNXMiniLM_L6_V2()

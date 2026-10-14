@@ -12,7 +12,10 @@ app = FastAPI(
     version="0.1.0",
 )
 
-frontend_url = os.getenv("FRONTEND_URL", "http://localhost:5173")
+frontend_url = os.getenv(
+    "FRONTEND_URL",
+    "http://localhost:5173"
+).rstrip("/")
 
 app.add_middleware(
     CORSMiddleware,

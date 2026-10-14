@@ -3,9 +3,7 @@ from backend.app.services.groq_service import GROQ_MODEL
 import os
 import json
 
-def generate_summary(document_contents: list[str]) -> str:
-    if not document_contents:
-        raise ValueError("No document content was provided.")
+def prepare_source_content(document_contents: list[str], max_chars: int = 12000) -> str:
     combined_content = "\n\n".join(
         content.strip()
         for content in document_contents
@@ -13,6 +11,15 @@ def generate_summary(document_contents: list[str]) -> str:
     )
     if not combined_content:
         raise ValueError("The notebook contains no readable document content.")
+    if len(combined_content) > max_chars:
+        combined_content = combined_content[:max_chars]
+        combined_content += "\n\n[Source text truncated to fit the model's input limit.]"
+    return combined_content
+
+def generate_summary(document_contents: list[str]) -> str:
+    if not document_contents:
+        raise ValueError("No document content was provided.")
+    combined_content = prepare_source_content(document_contents)
     client = get_groq_client()
     response = client.chat.completions.create(
         model=GROQ_MODEL,
@@ -40,15 +47,7 @@ def generate_summary(document_contents: list[str]) -> str:
 def generate_study_guide(document_contents: list[str]) -> str:
     if not document_contents:
         raise ValueError("No document content was provided.")
-    combined_content = "\n\n".join(
-        content.strip()
-        for content in document_contents
-        if content and content.strip()
-    )
-    if not combined_content:
-        raise ValueError(
-            "The notebook contains no readable document content."
-        )
+    combined_content = prepare_source_content(document_contents)
     client = get_groq_client()
     response = client.chat.completions.create(
         model=GROQ_MODEL,
@@ -80,13 +79,7 @@ def generate_quiz(document_contents: list[str], num_questions: int = 5) -> list[
         raise ValueError("No document content was provided.")
     if not 1 <= num_questions <= 20:
         raise ValueError("Number of questions must be between 1 and 20.")
-    combined_content = "\n\n".join(
-        content.strip()
-        for content in document_contents
-        if content and content.strip()
-    )
-    if not combined_content:
-        raise ValueError("No readable document content was provided.")
+    combined_content = prepare_source_content(document_contents)
     client = get_groq_client()
     model = os.getenv("GROQ_MODEL")
     prompt = f"""

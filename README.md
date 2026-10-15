@@ -5,7 +5,7 @@ AI Notebook Assistant is a full-stack application inspired by NotebookLM. It let
 I built this project to explore how retrieval-augmented generation (RAG) can be used to make AI responses more relevant to a user's own documents instead of relying only on the language model's existing knowledge.
 
 ## Live Demo
-
+- ** YouTube ** https://youtu.be/In_hUGva2rk
 - **Frontend:** https://ai-notebook-assistant-h9s8.onrender.com
 - **Backend API:** https://ai-notebook-assistant-api.onrender.com
 - **API Documentation:** https://ai-notebook-assistant-api.onrender.com/docs

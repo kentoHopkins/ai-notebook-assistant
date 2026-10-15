@@ -116,11 +116,11 @@ function App() {
         setLoadingDocuments(false);
         return;
       }
+      setDocuments([]);
+      setDocumentsError("");
+      setLoadingDocuments(true);
 
       try {
-        setLoadingDocuments(true);
-        setDocumentsError("");
-
         const data = await getDocuments(selectedNotebookId);
 
         if (!cancelled) {
@@ -160,11 +160,11 @@ function App() {
         setLoadingMessages(false);
         return;
       }
+      setMessages([]);
+      setChatError("");
+      setLoadingMessages(true);
 
       try {
-        setLoadingMessages(true);
-        setChatError("");
-
         const data = await getChatMessages(selectedNotebookId);
 
         if (!cancelled) {
@@ -210,9 +210,26 @@ function App() {
         description,
       });
 
+      // Clear the previous notebook's UI state.
+      setDocuments([]);
+      setMessages([]);
+      setStudyMaterial(null);
+
+      setDocumentsError("");
+      setChatError("");
+      setSourceActionError("");
+      setWebsiteError("");
+      setStudyToolError("");
+      setChatQuestion("");
+      setShowWebsiteForm(false);
+      setWebsiteUrl("");
+
+      // Add and select the newly created notebook.
       setNotebooks((previousNotebooks) => [
         notebook,
-        ...previousNotebooks,
+        ...previousNotebooks.filter(
+          (item) => item.id !== notebook.id
+        ),
       ]);
 
       setSelectedNotebookId(notebook.id);

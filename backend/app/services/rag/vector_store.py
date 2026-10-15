@@ -4,6 +4,8 @@ from pathlib import Path
 import chromadb
 from dotenv import load_dotenv
 from backend.app.services.rag.embeddings import get_embedding_function
+from rank_bm25 import BM25Okapi
+import re
 
 PROJECT_ROOT = Path(__file__).resolve().parents[4]
 load_dotenv(PROJECT_ROOT / ".env")
@@ -105,6 +107,68 @@ def search_chunks(
             metadatas,
             distances,
         )
+    ]
+
+def search_chunks_bm25(
+    notebook_id: int,
+    query: str,
+    n_results: int = 5,
+) -> list[dict]:
+    if notebook_id <= 0:
+        raise ValueError("notebook_id must be greater than zero.")
+    if not query or not query.strip():
+        raise ValueError("query cannot be empty.")
+    if n_results <= 0:
+        raise ValueError("n_results must be greater than zero.")
+
+    collection = get_collection(notebook_id)
+    total_chunks = collection.count()
+
+    if total_chunks == 0:
+        return []
+
+    # Retrieve all chunks belonging to this notebook.
+    stored_chunks = collection.get(
+        include=["documents", "metadatas"],
+    )
+
+    documents = stored_chunks["documents"]
+    metadatas = stored_chunks["metadatas"]
+
+    if not documents:
+        return []
+
+    # Tokenize documents and the query for BM25.
+    def tokenize(text: str) -> list[str]:
+        return re.findall(r"\b\w+\b", text.lower())
+
+    tokenized_documents = [
+        tokenize(document)
+        for document in documents
+    ]
+
+    tokenized_query = tokenize(query)
+
+    if not tokenized_query:
+        return []
+
+    # Rank chunks by BM25 relevance.
+    bm25 = BM25Okapi(tokenized_documents)
+    scores = bm25.get_scores(tokenized_query)
+
+    ranked_indices = sorted(
+        range(len(documents)),
+        key=lambda index: scores[index],
+        reverse=True,
+    )[:n_results]
+
+    return [
+        {
+            "text": documents[index],
+            "metadata": metadatas[index],
+            "distance": float(scores[index]),
+        }
+        for index in ranked_indices
     ]
 
 def delete_document_chunks(

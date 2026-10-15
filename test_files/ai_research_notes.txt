@@ -1,0 +1,67 @@
+Artificial Intelligence Research Notes
+
+1. Machine Learning
+Machine learning is a branch of artificial intelligence that enables
+computers to learn patterns from data. Instead of explicitly programming
+every rule, developers train models using examples. Common approaches
+include supervised learning, unsupervised learning, and reinforcement
+learning.
+Supervised learning uses labeled training data. For example, a model
+trained on labeled images of cats and dogs can learn to classify new
+images. Unsupervised learning works with unlabeled data and can identify
+patterns or groups. Reinforcement learning trains an agent through
+interactions with an environment, using rewards or penalties to guide
+its behavior.
+
+2. Neural Networks
+Neural networks are machine learning models inspired by the structure
+of biological neural systems. They consist of interconnected artificial
+neurons organized into layers. Each connection has a weight that
+influences how information moves through the network.
+During training, neural networks adjust their weights to reduce a
+loss function. Backpropagation calculates gradients that help determine
+how weights should change, while an optimization algorithm updates
+the weights.
+
+3. Natural Language Processing
+Natural language processing (NLP) focuses on enabling computers to
+process and analyze human language. Common applications include
+sentiment analysis, machine translation, text classification, and
+question answering.
+Large language models are trained on large collections of text to learn
+statistical patterns in language. They can generate fluent responses,
+but fluent language does not guarantee factual accuracy. A model may
+produce incorrect information or make claims unsupported by its input.
+
+4. Retrieval-Augmented Generation
+Retrieval-augmented generation (RAG) combines information retrieval
+with language generation. Before generating an answer, a RAG system
+searches an external collection of information for relevant passages.
+Those passages are provided to the language model as context.
+A typical RAG pipeline contains document ingestion, text extraction,
+chunking, embedding generation, vector storage, retrieval, and answer
+generation.
+Chunking divides long documents into smaller passages. Embeddings
+represent text as numerical vectors. A vector database stores these
+vectors and supports similarity searches.
+When a user asks a question, the system converts the question into an
+embedding and retrieves passages that are semantically similar.
+The retrieved passages are then used as context for answer generation.
+RAG can help ground answers in a specific collection of documents.
+However, it does not guarantee correctness. The system may retrieve
+irrelevant passages, fail to retrieve important evidence, or generate
+claims that are not supported by the retrieved context.
+
+5. Evaluating Retrieval Systems
+Retrieval systems can be evaluated using relevance, recall, precision,
+and latency.
+Precision measures the proportion of retrieved items that are relevant.
+Recall measures the proportion of relevant items that were successfully
+retrieved.
+Latency measures the time required to perform an operation. Retrieval
+latency and total answer-generation latency are different measurements.
+Answer quality can be assessed by checking factual correctness,
+completeness, relevance, and whether the answer is supported by the
+retrieved passages.
+A fair comparison should use the same source documents, questions,
+retrieval settings, and evaluation criteria for both approaches.

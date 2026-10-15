@@ -14,7 +14,17 @@ from backend.app.services.groq_service import (
     generate_answer,
     rewrite_question,
 )
-from backend.app.services.rag.vector_store import search_chunks
+import os
+from dotenv import load_dotenv
+from backend.app.services.rag.vector_store import (
+    search_chunks,
+    search_chunks_bm25,
+)
+
+PROJECT_ROOT = os.path.abspath(
+    os.path.join(os.path.dirname(__file__), "../../../..")
+)
+load_dotenv(os.path.join(PROJECT_ROOT, ".env"))
 
 router = APIRouter(tags=["Chat"])
 
@@ -58,11 +68,27 @@ def ask_question(
     except Exception:
         search_query = request.question
     try:
-        retrieved_chunks = search_chunks(
-            notebook_id=notebook_id,
-            query=search_query,
-            n_results=5,
-        )
+        retrieval_mode = os.getenv(
+            "RETRIEVAL_MODE",
+            "vector",
+        ).strip().lower()
+
+        if retrieval_mode == "vector":
+            retrieved_chunks = search_chunks(
+                notebook_id=notebook_id,
+                query=search_query,
+                n_results=5,
+            )
+        elif retrieval_mode == "bm25":
+            retrieved_chunks = search_chunks_bm25(
+                notebook_id=notebook_id,
+                query=search_query,
+                n_results=5,
+            )
+        else:
+            raise ValueError(
+                f"Unsupported RETRIEVAL_MODE: {retrieval_mode}"
+            )
 
         print("\n--- Retrieved Chunks ---")
         for chunk in retrieved_chunks:
